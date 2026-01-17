@@ -5,7 +5,13 @@
 {% block content %}
 <div class="dashboard">
     <header class="page-header">
-        <h1>Dashboard</h1>
+        <div class="page-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <h1>Dashboard</h1>
+        </div>
         <button class="btn btn-primary" onclick="openTaskModal()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -17,26 +23,61 @@
     <!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                </svg>
+            </div>
             <div class="stat-value">{{ stats.total }}</div>
             <div class="stat-label">Total Tasks</div>
         </div>
         <div class="stat-card highlight-blue">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                </svg>
+            </div>
             <div class="stat-value">{{ stats.in_progress }}</div>
             <div class="stat-label">In Progress</div>
         </div>
         <div class="stat-card highlight-yellow">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+            </div>
             <div class="stat-value">{{ stats.review }}</div>
             <div class="stat-label">In Review</div>
         </div>
         <div class="stat-card highlight-green">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+            </div>
             <div class="stat-value">{{ stats.done }}</div>
             <div class="stat-label">Completed</div>
         </div>
         <div class="stat-card highlight-red">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
             <div class="stat-value">{{ stats.overdue }}</div>
             <div class="stat-label">Overdue</div>
         </div>
         <div class="stat-card highlight-orange">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
             <div class="stat-value">{{ stats.high_priority }}</div>
             <div class="stat-label">High Priority</div>
         </div>
@@ -45,7 +86,15 @@
     <div class="dashboard-grid">
         <!-- Team Workload -->
         <section class="dashboard-card">
-            <h2>Team Workload</h2>
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Team Workload
+            </h2>
             <div class="workload-list">
                 {% for member in members %}
                 <div class="workload-item">
@@ -71,7 +120,12 @@
 
         <!-- Recent Tasks -->
         <section class="dashboard-card">
-            <h2>Recent Tasks</h2>
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                Recent Tasks
+            </h2>
             <div class="task-list">
                 {% for task in tasks[:8] %}
                 <div class="task-item" onclick="openTaskModal({{ task.id }})">
