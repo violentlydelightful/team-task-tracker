@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Team - Team Task Tracker{% endblock %}
+
+{% block content %}
+<div class="team-page">
+    <header class="page-header">
+        <h1>Team</h1>
+        <button class="btn btn-primary" onclick="openMemberModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Member
+        </button>
+    </header>
+
+    <div class="team-grid">
+        {% for member in members %}
+        <div class="team-card">
+            <div class="team-card-header">
+                <div class="avatar large" style="background-color: {{ member.avatar_color }}">
+                    {{ member.name[0] }}
+                </div>
+                <div class="member-details">
+                    <h3>{{ member.name }}</h3>
+                    <p class="member-role">{{ member.role or 'Team Member' }}</p>
+                    {% if member.email %}<p class="member-email">{{ member.email }}</p>{% endif %}
+                </div>
+            </div>
+            <div class="team-card-stats">
+                <div class="stat">
+                    <div class="stat-value">{{ member.tasks | length }}</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">{{ member.active_tasks | length }}</div>
+                    <div class="stat-label">Active</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">{{ member.workload_score }}</div>
+                    <div class="stat-label">Workload</div>
+                </div>
+            </div>
+            <div class="team-card-tasks">
+                <h4>Current Tasks</h4>
+                {% if member.active_tasks %}
+                <ul>
+                    {% for task in member.active_tasks[:3] %}
+                    <li>
+                        <span class="priority-dot priority-{{ task.priority }}"></span>
+                        {{ task.title }}
+                    </li>
+                    {% endfor %}
+                    {% if member.active_tasks | length > 3 %}
+                    <li class="more">+{{ member.active_tasks | length - 3 }} more</li>
+                    {% endif %}
+                </ul>
+                {% else %}
+                <p class="no-tasks">No active tasks</p>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state-large">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <h3>No Team Members</h3>
+            <p>Add team members to start assigning tasks</p>
+            <button class="btn btn-primary" onclick="openMemberModal()">Add First Member</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Member Modal -->
+<div class="modal" id="member-modal">
+    <div class="modal-backdrop" onclick="closeMemberModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add Team Member</h2>
+            <button class="btn-icon" onclick="closeMemberModal()">&times;</button>
+        </div>
+        <form id="member-form" onsubmit="saveMember(event)">
+            <div class="form-group">
+                <label for="member-name">Name</label>
+                <input type="text" id="member-name" required placeholder="Full name...">
+            </div>
+            <div class="form-group">
+                <label for="member-email">Email</label>
+                <input type="email" id="member-email" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+                <label for="member-role">Role</label>
+                <input type="text" id="member-role" placeholder="e.g., Developer, Designer...">
+            </div>
+            <div class="form-group">
+                <label>Avatar Color</label>
+                <div class="color-picker">
+                    <input type="radio" name="avatar-color" value="#667eea" id="color-1" checked>
+                    <label for="color-1" style="background: #667eea"></label>
+                    <input type="radio" name="avatar-color" value="#48bb78" id="color-2">
+                    <label for="color-2" style="background: #48bb78"></label>
+                    <input type="radio" name="avatar-color" value="#ed8936" id="color-3">
+                    <label for="color-3" style="background: #ed8936"></label>
+                    <input type="radio" name="avatar-color" value="#ed64a6" id="color-4">
+                    <label for="color-4" style="background: #ed64a6"></label>
+                    <input type="radio" name="avatar-color" value="#4fd1c5" id="color-5">
+                    <label for="color-5" style="background: #4fd1c5"></label>
+                    <input type="radio" name="avatar-color" value="#f56565" id="color-6">
+                    <label for="color-6" style="background: #f56565"></label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeMemberModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Member</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

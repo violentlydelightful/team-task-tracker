@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Team Task Tracker{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="page-header">
+        <h1>Dashboard</h1>
+        <button class="btn btn-primary" onclick="openTaskModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Task
+        </button>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total Tasks</div>
+        </div>
+        <div class="stat-card highlight-blue">
+            <div class="stat-value">{{ stats.in_progress }}</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card highlight-yellow">
+            <div class="stat-value">{{ stats.review }}</div>
+            <div class="stat-label">In Review</div>
+        </div>
+        <div class="stat-card highlight-green">
+            <div class="stat-value">{{ stats.done }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-card highlight-red">
+            <div class="stat-value">{{ stats.overdue }}</div>
+            <div class="stat-label">Overdue</div>
+        </div>
+        <div class="stat-card highlight-orange">
+            <div class="stat-value">{{ stats.high_priority }}</div>
+            <div class="stat-label">High Priority</div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Team Workload -->
+        <section class="dashboard-card">
+            <h2>Team Workload</h2>
+            <div class="workload-list">
+                {% for member in members %}
+                <div class="workload-item">
+                    <div class="member-info">
+                        <div class="avatar" style="background-color: {{ member.avatar_color }}">
+                            {{ member.name[0] }}
+                        </div>
+                        <div>
+                            <div class="member-name">{{ member.name }}</div>
+                            <div class="member-role">{{ member.role }}</div>
+                        </div>
+                    </div>
+                    <div class="workload-bar-container">
+                        <div class="workload-bar" style="width: {{ [member.workload_score * 10, 100] | min }}%"></div>
+                    </div>
+                    <div class="task-count">{{ member.active_tasks | length }} tasks</div>
+                </div>
+                {% else %}
+                <p class="empty-state">No team members yet. <a href="{{ url_for('team') }}">Add team members</a></p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Recent Tasks -->
+        <section class="dashboard-card">
+            <h2>Recent Tasks</h2>
+            <div class="task-list">
+                {% for task in tasks[:8] %}
+                <div class="task-item" onclick="openTaskModal({{ task.id }})">
+                    <div class="task-priority priority-{{ task.priority }}"></div>
+                    <div class="task-info">
+                        <div class="task-title">{{ task.title }}</div>
+                        <div class="task-meta">
+                            {% if task.project %}<span class="task-project">{{ task.project }}</span>{% endif %}
+                            {% if task.assignee %}<span class="task-assignee">{{ task.assignee.name }}</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="task-status status-{{ task.status }}">{{ task.status | replace('_', ' ') }}</div>
+                </div>
+                {% else %}
+                <p class="empty-state">No tasks yet. Create one to get started!</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Task Modal -->
+<div class="modal" id="task-modal">
+    <div class="modal-backdrop" onclick="closeTaskModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">New Task</h2>
+            <button class="btn-icon" onclick="closeTaskModal()">&times;</button>
+        </div>
+        <form id="task-form" onsubmit="saveTask(event)">
+            <input type="hidden" id="task-id">
+            <div class="form-group">
+                <label for="task-title-input">Title</label>
+                <input type="text" id="task-title-input" required placeholder="Task title...">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="task-status-input">Status</label>
+                    <select id="task-status-input">
+                        <option value="todo">To Do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="review">Review</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-priority-input">Priority</label>
+                    <select id="task-priority-input">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="task-project-input">Project</label>
+                    <input type="text" id="task-project-input" placeholder="Project name..." list="projects-list">
+                    <datalist id="projects-list">
+                        {% for project in projects %}
+                        <option value="{{ project }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label for="task-due-input">Due Date</label>
+                    <input type="date" id="task-due-input">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="task-assignee-input">Assignee</label>
+                <select id="task-assignee-input">
+                    <option value="">Unassigned</option>
+                    {% for member in members %}
+                    <option value="{{ member.id }}">{{ member.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="task-description-input">Description</label>
+                <textarea id="task-description-input" rows="3" placeholder="Task description..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+                <button type="button" class="btn btn-danger" id="delete-task-btn" onclick="deleteTask()" style="display: none;">Delete</button>
+                <button type="submit" class="btn btn-primary">Save Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

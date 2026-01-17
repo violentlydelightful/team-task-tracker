@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Board - Team Task Tracker{% endblock %}
+
+{% block content %}
+<div class="board-page">
+    <header class="page-header">
+        <h1>Task Board</h1>
+        <button class="btn btn-primary" onclick="openTaskModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Task
+        </button>
+    </header>
+
+    <div class="board">
+        {% for status, status_tasks in [('todo', board.todo), ('in_progress', board.in_progress), ('review', board.review), ('done', board.done)] %}
+        <div class="board-column" data-status="{{ status }}">
+            <div class="column-header">
+                <h3>{{ status | replace('_', ' ') | title }}</h3>
+                <span class="task-count">{{ status_tasks | length }}</span>
+            </div>
+            <div class="column-tasks" ondrop="dropTask(event)" ondragover="allowDrop(event)">
+                {% for task in status_tasks %}
+                <div class="board-task priority-{{ task.priority }}" draggable="true" data-task-id="{{ task.id }}" ondragstart="dragTask(event)" onclick="openTaskModal({{ task.id }})">
+                    <div class="board-task-header">
+                        <span class="priority-dot priority-{{ task.priority }}"></span>
+                        {% if task.project %}<span class="task-project">{{ task.project }}</span>{% endif %}
+                    </div>
+                    <div class="board-task-title">{{ task.title }}</div>
+                    <div class="board-task-footer">
+                        {% if task.assignee %}
+                        <div class="avatar small" style="background-color: {{ task.assignee.avatar_color }}">
+                            {{ task.assignee.name[0] }}
+                        </div>
+                        {% endif %}
+                        {% if task.due_date %}
+                        <span class="due-date {% if task.is_overdue %}overdue{% endif %}">
+                            {{ task.due_date.strftime('%b %d') }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Task Modal (same as dashboard) -->
+<div class="modal" id="task-modal">
+    <div class="modal-backdrop" onclick="closeTaskModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">New Task</h2>
+            <button class="btn-icon" onclick="closeTaskModal()">&times;</button>
+        </div>
+        <form id="task-form" onsubmit="saveTask(event)">
+            <input type="hidden" id="task-id">
+            <div class="form-group">
+                <label for="task-title-input">Title</label>
+                <input type="text" id="task-title-input" required placeholder="Task title...">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="task-status-input">Status</label>
+                    <select id="task-status-input">
+                        <option value="todo">To Do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="review">Review</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-priority-input">Priority</label>
+                    <select id="task-priority-input">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="task-project-input">Project</label>
+                    <input type="text" id="task-project-input" placeholder="Project name...">
+                </div>
+                <div class="form-group">
+                    <label for="task-due-input">Due Date</label>
+                    <input type="date" id="task-due-input">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="task-assignee-input">Assignee</label>
+                <select id="task-assignee-input">
+                    <option value="">Unassigned</option>
+                    {% for member in members %}
+                    <option value="{{ member.id }}">{{ member.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="task-description-input">Description</label>
+                <textarea id="task-description-input" rows="3" placeholder="Task description..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+                <button type="button" class="btn btn-danger" id="delete-task-btn" onclick="deleteTask()" style="display: none;">Delete</button>
+                <button type="submit" class="btn btn-primary">Save Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
